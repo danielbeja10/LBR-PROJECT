@@ -1,0 +1,26 @@
+# Build artifacts (kernel module / C)
+*.o
+*.ko
+*.mod
+*.mod.*
+*.cmd
+*.d
+*.out
+*.so
+Module.symvers
+modules.order
+
+# Editors/IDE
+.vscode/
+*.swp
+
+# OS / temp / Office autosaves
+*.tmp
+~$*.docx
+~*.tmp
+
+# Big disk images / archives
+*.iso
+
+# Logs
+*.log

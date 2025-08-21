@@ -7,7 +7,7 @@
 #include "lbr_API.h"
 #include "lbr_info.h"
 
-#define ARCH_LBR_LEAF     0x1C // number of the leaf that give LBR information.
+#define LBR_LEAF     0x1C // number of the leaf that give LBR information.
 
 
 #define MSR_IA32_LBR_CTL        0x14CEull //relent MSR for controlling configurations of the LBR
@@ -19,17 +19,17 @@
 static void cpuid_1c(u32 *a, u32 *b, u32 *c, u32 *d){
 
     u32 EAX = 0, EBX = 0, ECX = 0, EDX = 0;
-    cpuid_count(ARCH_LBR_LEAF, 0, &EAX, &EBX, &ECX, &EDX);
-    if (a) *a = EAX;
-    if (b) *b = EBX;
-    if (c) *c = ECX;
-    if (d) *d = EDX;
+    cpuid_count(LBR_LEAF, 0, &EAX, &EBX, &ECX, &EDX);
+    if (a != NULL) *a = EAX;
+    if (b != NULL) *b = EBX;
+    if (c != NULL) *c = ECX;
+    if (d != NULL) *d = EDX;
 }
 /*
 * if there is information in the register return TRUE
 * else - return FALSE.
 */
-static bool arch_lbr_present(void)
+static bool lbr_present(void)
 {
     u32 EAX = 0, EBX = 0, ECX = 0, EDX = 0;
     cpuid_1c(&EAX, &EBX, &ECX, &EDX);
@@ -39,16 +39,23 @@ static bool arch_lbr_present(void)
         return false;
 }
 /*
-* calculate the max depth. 
-* 8 * (n + 1) - n is the index of the most significant bit.
+* return the max depth from the valid options of the depth_options.
 */
-static u32 bitmap_to_max_depth(u32 bits)
-{
-    int msb;
-    if (bits == 0)
-        return 0;
-    msb = fls(bits) - 1;
-    return 8u * (msb + 1);
+static __u32 maxDepthBit(__u32 depth_options){
+    u32 max_depth = 0;
+    if (depth_options !=0)
+    {
+        u32 n = 0;
+        for(int i = 0;i < 32; i++){
+            if (((1u << i) & depth_options) != 0)
+            {
+                n = (u32)i;
+            }
+            
+        }
+        max_depth = 8u * (n + 1u);
+    }
+    return max_depth;
 }
 
 /*
@@ -63,7 +70,7 @@ int lbr_get_support(__u8 *has_lbr_out)
     if (has_lbr_out == NULL)
         return -EINVAL;
 
-    arch = arch_lbr_present();
+    arch = lbr_present();
     if (arch) {
         *has_lbr_out = 1;
         return 0;
@@ -99,8 +106,7 @@ int lbr_get_limits(struct lbr_limits *out)
 {
     __u8 has_lbr = 0;
     u32 EAX = 0, EBX = 0, ECX = 0, EDX = 0;
-    u32 depth_bitmap = 0;
-    u32 max_depth = 0;
+    u32 depth_opt = 0;
     u64 depth_msr = 0;
     int rc;
 
@@ -112,17 +118,21 @@ int lbr_get_limits(struct lbr_limits *out)
         return rc;
 
     cpuid_1c(&EAX, &EBX, &ECX, &EDX); // take info from the leaf
-    depth_bitmap = EAX & 0xFFu; // what leagal depth does the cpu has.
-    max_depth = bitmap_to_max_depth(depth_bitmap); // what is the max depth it has
+    depth_opt = EAX & 0xFFu; // what leagal depth does the cpu has.
+   
 
     rdmsrl(MSR_IA32_LBR_DEPTH, depth_msr); // what is the current depth that the LBR is using.
 
-    out->depth_bitmap = depth_bitmap;
-    out->max_depth_supported = max_depth;
+    out->depth_options = depth_opt;
     out->current_depth = (u32)depth_msr;
+    out->max_depth = maxDepthBit(depth_opt);
 
-    if (max_depth == 0 && out->current_depth == 0) // no LBR
+    
+
+    if (out->depth_options == 0)
         return -ENODEV;
     else
         return 0;
 }
+
+

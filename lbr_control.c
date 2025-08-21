@@ -18,7 +18,7 @@ static int validate_ctl_bits(u64 new_ctl)
     allowed |= (LBR_CTL_FILTER0 | LBR_CTL_FILTER1 | LBR_CTL_FILTER2 |
                 LBR_CTL_FILTER3 | LBR_CTL_FILTER4 | LBR_CTL_FILTER5 | LBR_CTL_FILTER6);
 
-    if (new_ctl & ~allowed) // check if we change only bits that are related to the modes(ctl).
+    if ((new_ctl & ~allowed) != 0) // check if we change only bits that are related to the modes(ctl).
         return -EINVAL;
 
     return 0;
@@ -29,7 +29,7 @@ static int validate_depth_value(u32 new_depth)
     struct lbr_limits lim;
     int rc;
 
-    if (new_depth == 0) // no LBR
+    if (new_depth == 0) 
         return -EINVAL;
     if ((new_depth % 8) != 0) // not valide depth 
         return -EINVAL;
@@ -42,7 +42,7 @@ static int validate_depth_value(u32 new_depth)
         u32 n = (new_depth / 8) - 1; // set the bit of the new depth.
         if (n >= 32) // cant be bigger than 32.
             return -EINVAL;
-        if ((lim.depth_bitmap & (1u << n)) == 0) // if the depth that we are trying to change isnt leagal for the cpu return false.
+        if ((lim.depth_options & (1u << n)) == 0) // if the depth that we are trying to change isnt leagal for the cpu return false.
             return -EINVAL;
     }
     return 0;

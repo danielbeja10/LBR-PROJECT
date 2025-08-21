@@ -20,7 +20,7 @@ void  usage(FILE* f);
 /*
 * Json output of the branches.
 */
-void  write_json(FILE* out, const struct lbr_entry_uapi* ents, unsigned n);
+void  write_json(FILE* out, const struct lbr_entry* ents, unsigned n);
 
 
 /*

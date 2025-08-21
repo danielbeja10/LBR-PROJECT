@@ -8,8 +8,8 @@
 
 
 /* Architectural LBR MSR bases (FROM/TO) */
-#define MSR_IA32_LBR_FROM_BASE  0x1500ull // FROM MSR
-#define MSR_IA32_LBR_TO_BASE    0x1600ull // TO MSR
+#define IA32_LBR_FROM_BASE  0x1500ull // FROM MSR
+#define IA32_LBR_TO_BASE    0x1600ull // TO MSR
 
 
 
@@ -22,22 +22,15 @@ int lbr_log_init(struct lbr_log *log)
     if (!log)
         return -EINVAL;
 
-    rc = lbr_get_support(&has); //if LBR not availible.
-    if (rc != 0)
-        return rc;
-
     rc = lbr_get_limits(&lim);// if the limits are valid in the CPU.
     if (rc != 0)
         return rc;
-
-    if (lim.max_depth_supported == 0)//if the CPU support 0 branches.
-        return -ENODEV;
-
-    log->entries = kcalloc(lim.max_depth_supported, sizeof(*log->entries), GFP_KERNEL); // create space for the entries of the TO and FROM.
+ 
+    log->entries = kcalloc(lim.max_depth, sizeof(*log->entries), GFP_KERNEL); // create space for the entries of the TO and FROM.
     if (!log->entries) // check if *log has enough space.
         return -ENOMEM;
 
-    log->capacity = lim.max_depth_supported; //the LBR can contain max depth number of branches.
+    log->capacity = lim.max_depth; //the LBR can contain max depth number of branches.
     log->count = 0; // how many branches we recorded.
     return 0;
 }
@@ -65,10 +58,6 @@ int lbr_log_capture(struct lbr_log *log)
     if (!log || !log->entries || log->capacity == 0)  // no recordes captured or no sturct or the capacity of the CPU is 0.
         return -EINVAL;
 
-    rc = lbr_get_support(&has); // if there is no LBR
-    if (rc != 0)
-        return rc;
-
     rc = lbr_get_limits(&lim); // checks valid limits.
     if (rc != 0)
         return rc;
@@ -77,8 +66,8 @@ int lbr_log_capture(struct lbr_log *log)
 
     for (i = 0; i < n; i++) {
         u64 from = 0, to = 0;
-        rdmsrl(0x1500ull + i, from);  
-        rdmsrl(0x1600ull + i, to);    
+        rdmsrl(IA32_LBR_FROM_BASE + i, from);  
+        rdmsrl(IA32_LBR_TO_BASE + i, to);    
         log->entries[i].from = from;
         log->entries[i].to   = to;
     }

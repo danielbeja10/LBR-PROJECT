@@ -6,7 +6,6 @@
 
 #include "lbrctl_common.h"
 
-/* forward decls from the other units */
 int cmd_config(const char* dev, int argc, char** argv);
 int cmd_run   (const char* dev, int argc, char** argv);
 
@@ -37,20 +36,15 @@ static int dispatch_subcommand(
 }
 
 int main(int argc, char** argv) {
-    const char* dev = NULL; /* device path if provided */
+    const char* dev = NULL;  
 
-    /* global long options: only --dev here */
-    static struct option global[] = {
-        {"dev", required_argument, 0, 1000},
-        {0,0,0,0}
-    };
-
-    int idx = 0, c;
-    while ((c = getopt_long(argc, argv, "", global, &idx)) != -1) {
-        if (c == 1000) dev = optarg;
-        else { usage(stderr); return 2; }
+    // The first argument must be the subcommand: "config" or "run".
+    if (argc < 2) {
+        usage(stderr);
+        return 2;
     }
 
+<<<<<<< HEAD
     if (optind >= argc) {
         usage(stderr);
         return 2;
@@ -68,7 +62,24 @@ int main(int argc, char** argv) {
 /* IMPORTANT: for 'run' pass argv_rest as-is so argv_rest[0] is exactly "--" */
     if (!strcmp(cmd, "run"))
         return cmd_run(dev, argc_rest, argv_rest);
+=======
+    const char* cmd = argv[1];
 
+    // Handle "config" subcommand
+    if (strcmp(cmd, "config") == 0) {
+        // Pass the rest of the arguments (after "config") to cmd_config
+        return cmd_config(dev, argc - 2, argv + 2);
+    }
+
+    // Handle "run" subcommand
+    if (strcmp(cmd, "run") == 0) {
+        // Pass the rest of the arguments (after "run") to cmd_run
+        return cmd_run(dev, argc - 2, argv + 2);
+    }
+>>>>>>> 9b68b98 (after changes 9.9)
+
+
+    fprintf(stderr, "Unknown subcommand: %s\n", cmd);
     usage(stderr);
     return 2;
 

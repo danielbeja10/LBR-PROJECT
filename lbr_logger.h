@@ -1,15 +1,11 @@
 #pragma once
 #include <linux/types.h>
+#include "lbr_API.h" 
 
-/* A single LBR record: FROM and TO IPs */
-struct lbr_Kentry {
-    u64 from;
-    u64 to;
-};
 
 /* In-memory buffer to hold a snapshot of LBR entries */
 struct lbr_log {
-    struct lbr_Kentry *entries; /* allocated array */
+    struct lbr_entry *entries; /* allocated array */
     u32 capacity;              /*  array size (in entries) max depth */
     u32 count;                 /* how many entries captured last time */
 };

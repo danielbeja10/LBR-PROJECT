@@ -8,7 +8,7 @@
 #include "lbr_info.h"    /* lbr_get_support, lbr_get_config_state, lbr_get_limits */
 #include "lbr_control.h" /* lbr_enable, lbr_disable, lbr_set_ctl, lbr_set_depth */
 
-#define LBR_DEV_NAME "lbr_device"
+
 
 /*
  * ioctl handler for LBR device
@@ -88,15 +88,15 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         /* Unsupported ioctl command. */
         return -ENOTTY;
 
-    case LBR_IOCTL_DUMP_ENTRIES: { 
+    case LBR_IOCTL_REQ_ENTRIES: { 
         /* 
-        * Dump the recorded LBR entries to user space:
+        * return the recorded LBR entries to user space:
         * - Initialize logging
         * - Capture current LBR entries
         * - Copy them to user buffer (up to req.max)
         * - Optionally clear the hardware LBR after copying
         */
-        struct lbr_dump_req req;
+        struct lbr_req req;
         struct lbr_log log;
         int rc;
 
@@ -114,9 +114,7 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if (rc == 0) {
             __u32 to_copy = (log.count < req.max) ? log.count : req.max; 
 
-            if (copy_to_user((void __user *)(uintptr_t)req.buf,
-                             log.entries,
-                             to_copy * sizeof(struct lbr_entry_uapi)))
+            if (copy_to_user((void __user *)(uintptr_t)req.buf, log.entries, to_copy * sizeof(struct lbr_entry)))
                 rc = -EFAULT;
             else
                 req.count = to_copy;
@@ -128,12 +126,10 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         }
 
         if (rc == 0 && req.clear) {
-            struct lbr_limits lim;
-            if (lbr_get_limits(&lim) == 0) {
-                // Reset LBR entries by rewriting depth to itself.
-                wrmsrl(0x14CFull, (u64)lim.current_depth); 
-            }
+            (void)lbr_disable();
+            (void)lbr_enable();
         }
+
 
         lbr_log_destroy(&log);
         return rc;
@@ -156,7 +152,7 @@ static const struct file_operations lbr_fops = {
  */
 static struct miscdevice lbr_miscdev = {
     .minor = MISC_DYNAMIC_MINOR,
-    .name  = LBR_DEV_NAME,
+    .name  = "lbr_device",
     .fops  = &lbr_fops,
 };
 
@@ -169,7 +165,7 @@ static int __init lbr_dev_init(void)
     if (rc)
         pr_err("lbr: misc_register failed (%d)\n", rc);
     else
-        pr_info("lbr: /dev/%s ready\n", LBR_DEV_NAME);
+        pr_info("lbr: /dev/%s ready\n", "lbr_device");
     return rc;
 }
 
@@ -179,7 +175,7 @@ static int __init lbr_dev_init(void)
 static void __exit lbr_dev_exit(void)
 {
     misc_deregister(&lbr_miscdev);
-    pr_info("lbr: /dev/%s removed\n", LBR_DEV_NAME);
+    pr_info("lbr: /dev/%s removed\n", "lbr_device");
 }
 
 module_init(lbr_dev_init);

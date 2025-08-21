@@ -39,7 +39,7 @@ int cmd_run(const char* dev, int argc, char** argv) {
     /*
     * Check LBR availability.
     */
-    struct lbr_basic_report rep = (struct lbr_basic_report){0};
+    struct lbr_basic_report rep = {0};
     if (ioctl(fd, LBR_IOCTL_GET_BASIC, &rep) != 0) {
         fprintf(stderr, "GET_BASIC failed: %s\n", strerror(errno));
         close(fd);
@@ -86,17 +86,16 @@ int cmd_run(const char* dev, int argc, char** argv) {
 
     /*
     * Copying what we captured for the user.
-    * building the dump.
+    * building the request.
     */
-    unsigned cap = rep.lbr_limits.max_depth_supported;
+    unsigned cap = rep.lbr_limits.current_depth;
     if (cap == 0)
-        cap = rep.lbr_limits.current_depth;
-    if (cap == 0)
-    cap = 32;    
+        cap = rep.lbr_limits.max_depth;
+   
 
     
 
-    struct lbr_entry_uapi* buf = calloc(cap, sizeof(*buf)); // allocate aaray for capture buf
+    struct lbr_entry *buf = calloc(cap, sizeof(*buf)); // allocate aaray for capture buf
     if (!buf) 
     { 
         fprintf(stderr, "OOM\n"); 
@@ -105,13 +104,13 @@ int cmd_run(const char* dev, int argc, char** argv) {
         return 1; 
     }
 
-    struct lbr_dump_req req = (struct lbr_dump_req){0};
+    struct lbr_req req = {0};
     req.buf   = (unsigned long long)(uintptr_t)buf; // pointer to FROM TO arrays.
     req.max   = cap; // Number of the branches.
     req.clear = 1; // clear the LBR after copying.
 
-    if (ioctl(fd, LBR_IOCTL_DUMP_ENTRIES, &req) != 0) {
-        fprintf(stderr, "DUMP_ENTRIES failed: %s\n", strerror(errno));
+    if (ioctl(fd, LBR_IOCTL_REQ_ENTRIES, &req) != 0) {
+        fprintf(stderr, "ENTRIES failed: %s\n", strerror(errno));
         free(buf);
         ioctl(fd, LBR_IOCTL_DISABLE);
         close(fd);
@@ -126,7 +125,7 @@ int cmd_run(const char* dev, int argc, char** argv) {
 
     if (WIFEXITED(status))  
          return WEXITSTATUS(status);
-    if (WIFSIGNALED(status)) 
+    if (WIFSIGNALED(status)) // If the child didnt work properly 
         return 128 + WTERMSIG(status);
     return 0;
 }

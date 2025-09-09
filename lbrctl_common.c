@@ -57,7 +57,7 @@ __u64 build_filter_bits(unsigned mask7) {
 }
 
 /* print JSON */
-void write_json(FILE* out, const struct lbr_entry* ents, unsigned n) {
+void write_json(FILE* out, const struct lbr_entry_api* ents, unsigned n) {
     time_t now = time(NULL);
     fprintf(out, "{\n  \"generated_at\": %lld,\n  \"entries\": [\n", (long long)now);
     for (unsigned i = 0; i < n; ++i) {

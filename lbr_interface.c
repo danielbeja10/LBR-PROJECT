@@ -1,6 +1,7 @@
 #include <linux/module.h>
 #include <linux/miscdevice.h>
 #include <linux/fs.h>
+#include <linux/printk.h>  
 #include <linux/uaccess.h>
 #include "lbr_logger.h"
 
@@ -9,7 +10,20 @@
 #include "lbr_control.h" /* lbr_enable, lbr_disable, lbr_set_ctl, lbr_set_depth */
 
 
+static void lbr_dump_basic_kernel(const struct lbr_basic_report *rep, u64 ctl_raw)
+{
 
+    pr_info("lbr: GET_BASIC: has_lbr=%u\n", rep->has_lbr);
+
+
+    pr_info("lbr:   limits: max_depth=%u curr_depth=%u\n",
+            rep->lbr_limits.max_depth,
+            rep->lbr_limits.current_depth);
+
+  
+    pr_info("lbr:   ctl_raw=0x%llx \n",
+            (unsigned long long)ctl_raw);
+}
 /*
  * ioctl handler for LBR device
  * This function receives commands from user space and calls
@@ -31,6 +45,7 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         */
         struct lbr_basic_report rep;
         __u8 has = 0;
+        __u64 ctl_raw = 0;
 
         rc = lbr_get_support(&has); // check hardware LBR support
         if (rc != 0)
@@ -41,11 +56,12 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         rc = lbr_get_config_state(&rep.lbr_config); // get current config
         if (rc != 0)
             return rc;
-
+        
         rc = lbr_get_limits(&rep.lbr_limits); // get limits info
         if (rc != 0)
             return rc;
-
+        ctl_raw = rep.lbr_config.lbr_ctl;
+        lbr_dump_basic_kernel(&rep, ctl_raw);
         if (copy_to_user((void __user *)arg, &rep, sizeof(rep)))
             return -EFAULT;
 
@@ -114,7 +130,7 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if (rc == 0) {
             __u32 to_copy = (log.count < req.max) ? log.count : req.max; 
 
-            if (copy_to_user((void __user *)(uintptr_t)req.buf, log.entries, to_copy * sizeof(struct lbr_entry)))
+            if (copy_to_user((void __user *)(uintptr_t)req.buf, log.entries, to_copy * sizeof(struct lbr_entry_api)))
                 rc = -EFAULT;
             else
                 req.count = to_copy;

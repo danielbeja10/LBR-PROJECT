@@ -12,10 +12,9 @@ int cmd_run   (const char* dev, int argc, char** argv);
 
 int main(int argc, char** argv) {
     const char* dev = NULL;  
-
+    usage(stdout);
     // The first argument must be the subcommand: "config" or "run".
     if (argc < 2) {
-        usage(stderr);
         return 2;
     }
 

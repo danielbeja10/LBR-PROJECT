@@ -12,6 +12,8 @@
 #include "lbr_API.h"
 #include "lbrctl_common.h"
 
+
+
 /* 
 * Run the desired application.
 * Capture its braches. (Enable LBR)
@@ -39,13 +41,13 @@ int cmd_run(const char* dev, int argc, char** argv) {
     /*
     * Check LBR availability.
     */
-    struct lbr_basic_report rep = {0};
-    if (ioctl(fd, LBR_IOCTL_GET_BASIC, &rep) != 0) {
-        fprintf(stderr, "GET_BASIC failed: %s\n", strerror(errno));
+    struct lbr_basic_report rep_before = {0};
+    if (ioctl(fd, LBR_IOCTL_GET_BASIC, &rep_before) != 0) {
+        fprintf(stderr, "GET_BASIC(before) failed: %s\n", strerror(errno));
         close(fd);
         return 1;
     }
-    if (!rep.has_lbr) 
+    if (!rep_before.has_lbr) 
     { 
         fprintf(stderr, "LBR not available on this system.\n"); 
         close(fd); 
@@ -81,21 +83,21 @@ int cmd_run(const char* dev, int argc, char** argv) {
 
     int status = 0;
     (void)waitpid(child, &status, 0);      // parent waits
-    (void)ioctl(fd, LBR_IOCTL_DISABLE);    // stop capture
+    
 
 
     /*
     * Copying what we captured for the user.
     * building the request.
     */
-    unsigned cap = rep.lbr_limits.current_depth;
+    unsigned cap = rep_before.lbr_limits.current_depth;
     if (cap == 0)
-        cap = rep.lbr_limits.max_depth;
+        cap = rep_before.lbr_limits.max_depth;
    
 
     
 
-    struct lbr_entry *buf = calloc(cap, sizeof(*buf)); // allocate aaray for capture buf
+    struct lbr_entry_api *buf = calloc(cap, sizeof(*buf)); // allocate aaray for capture buf
     if (!buf) 
     { 
         fprintf(stderr, "OOM\n"); 
@@ -116,7 +118,11 @@ int cmd_run(const char* dev, int argc, char** argv) {
         close(fd);
         return 1;
     }
-
+    (void)ioctl(fd, LBR_IOCTL_DISABLE);    // stop capture
+    struct lbr_basic_report rep_after = {0};
+    if (ioctl(fd, LBR_IOCTL_GET_BASIC, &rep_after) != 0) {
+        fprintf(stderr, "GET_BASIC(after) failed: %s\n", strerror(errno));
+    }
     
     close(fd);
 

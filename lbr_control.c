@@ -1,6 +1,8 @@
 #include <linux/errno.h>
-#include <linux/bitops.h>
 #include <asm/msr.h>
+#include <linux/printk.h>
+#include <linux/sched.h>
+#include <linux/smp.h>
 #include <asm/processor.h>
 #include "lbr_API.h"
 #include "lbr_info.h"
@@ -52,6 +54,12 @@ int lbr_enable(void)
 {
     __u8 has = 0;
     u64 ctl;
+    int cpu = get_cpu();
+    put_cpu();
+
+    pr_info("lbr: ENABLE requested by pid=%d (comm=%s) on cpu=%d\n",
+            current->pid, current->comm, cpu);
+
     
     if (lbr_get_support(&has) != 0) //if there is no LBR.
         return -ENODEV;
@@ -59,6 +67,7 @@ int lbr_enable(void)
     rdmsrl(MSR_IA32_LBR_CTL, ctl);
     ctl |= LBR_CTL_ENABLE;
     wrmsrl(MSR_IA32_LBR_CTL, ctl); // return the same LBR CTL just with enable bit[0] as 1.
+    pr_info("lbr: ENABLE done\n");
     return 0;
 }
 
@@ -68,6 +77,12 @@ int lbr_disable(void)
 {
     __u8 has = 0;
     u64 ctl;
+    int cpu = get_cpu();
+    put_cpu();
+
+    pr_info("lbr: DISABLE requested by pid=%d (comm=%s) on cpu=%d\n",
+            current->pid, current->comm, cpu);
+
 
     if (lbr_get_support(&has) != 0) // if there is no LBR.
         return -ENODEV;
@@ -75,6 +90,7 @@ int lbr_disable(void)
     rdmsrl(MSR_IA32_LBR_CTL, ctl); 
     ctl &= ~LBR_CTL_ENABLE;
     wrmsrl(MSR_IA32_LBR_CTL, ctl); // return the same LBR CTL just with enable bit[0] as 0.
+    pr_info("lbr: DISABLE done\n");
     return 0;
 }
 
@@ -83,6 +99,9 @@ int lbr_set_ctl(u64 new_ctl)
 {
     __u8 has = 0;
     int rc;
+    pr_info("lbr: SET_CTL 0x%llx (pid=%d)\n",
+            (unsigned long long)new_ctl, current->pid);
+
 
     if (lbr_get_support(&has) != 0) // if there is no LBR.
         return -ENODEV;
@@ -100,6 +119,7 @@ int lbr_set_depth(u32 new_depth)
 {
     __u8 has = 0;
     int rc;
+    pr_info("lbr: SET_DEPTH %u (pid=%d)\n", new_depth, current->pid);
 
     if (lbr_get_support(&has) != 0) // if there is no LBR.
         return -ENODEV;

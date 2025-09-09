@@ -52,7 +52,7 @@ struct lbr_basic_report {
 };
 
 /* A branch record for userspace */
-struct lbr_entry {
+struct lbr_entry_api {
     __u64 from;
     __u64 to;
 };
@@ -73,4 +73,3 @@ struct lbr_req {
 #define LBR_IOCTL_ENABLE     _IO (LBR_IOCTL_MAGIC, 0x03)
 #define LBR_IOCTL_DISABLE    _IO (LBR_IOCTL_MAGIC, 0x04)
 #define LBR_IOCTL_REQ_ENTRIES _IOWR(LBR_IOCTL_MAGIC, 0x05, struct lbr_req)
-

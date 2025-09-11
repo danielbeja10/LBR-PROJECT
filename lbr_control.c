@@ -111,6 +111,7 @@ int lbr_set_ctl(u64 new_ctl)
         return rc;
 
     wrmsrl(MSR_IA32_LBR_CTL, new_ctl);
+    pr_info("lbr: SET_CTL to 0x%llx done\n",(unsigned long long)new_ctl);
     return 0;
 }
 
@@ -129,5 +130,6 @@ int lbr_set_depth(u32 new_depth)
         return rc;
 
     wrmsrl(MSR_IA32_LBR_DEPTH, (u64)new_depth);
+    pr_info("lbr: SET_DEPTH to 0x%llx done\n",(unsigned long long)new_ctl);
     return 0;
 }

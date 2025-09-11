@@ -1,10 +1,13 @@
 #include <linux/kernel.h>
 #include <linux/errno.h>
+#include <linux/types.h>
 #include <linux/smp.h>
 #include <linux/bitops.h>
 #include <asm/msr.h>
+#include <linux/printk.h>
 #include <asm/processor.h>
 #include "lbr_API.h"
+
 #include "lbr_info.h"
 
 #define LBR_LEAF     0x1C // number of the leaf that give LBR information.
@@ -65,17 +68,20 @@ static __u32 maxDepthBit(__u32 depth_options){
 int lbr_get_support(__u8 *has_lbr_out)
 
 {
-      bool arch;
+      bool lbrFlag;
 
     if (has_lbr_out == NULL)
         return -EINVAL;
 
-    arch = lbr_present();
-    if (arch) {
+    lbrFlag = lbr_present();
+    if (lbrFlag) {
         *has_lbr_out = 1;
+        pr_info("lbr: LBR is available.\n");
         return 0;
+        
     } else {
         *has_lbr_out = 0;
+        pr_err("lbr: LBR is NOT available.\n");
         return -ENODEV;
     }
 }
@@ -98,6 +104,7 @@ int lbr_get_config_state(struct lbr_config_state *out)
 
     rdmsrl(MSR_IA32_LBR_CTL, ctl);
     out->lbr_ctl = ctl;
+    pr_info("lbr: the LBR current configuration state is 0x%llx.\n", (unsigned long long)ctl);
     return 0;
 }
 
@@ -124,10 +131,11 @@ int lbr_get_limits(struct lbr_limits *out)
     rdmsrl(MSR_IA32_LBR_DEPTH, depth_msr); // what is the current depth that the LBR is using.
 
     out->depth_options = depth_opt;
+    pr_info("lbr: the LBR depth options are %#x\n", depth_opt);
     out->current_depth = (u32)depth_msr;
+    pr_info("lbr: the LBR current depth is %#x\n", out->current_depth);
     out->max_depth = maxDepthBit(depth_opt);
-
-    
+    pr_info("lbr: the LBR MAX depth is %#x\n", out->max_depth);
 
     if (out->depth_options == 0)
         return -ENODEV;

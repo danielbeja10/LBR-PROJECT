@@ -19,5 +19,3 @@ void lbr_log_destroy(struct lbr_log *log);
 /* Read current LBR entries into 'log->entries' and set 'log->count' */
 int  lbr_log_capture(struct lbr_log *log);
 
-/* Print the captured entries to the kernel log */
-void lbr_log_print(const struct lbr_log *log);

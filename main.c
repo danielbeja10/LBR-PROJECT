@@ -33,6 +33,10 @@ int main(int argc, char** argv) {
         return cmd_run(dev, argc - 2, argv + 2);
     }
 
+    if (strcmp(cmd, "status") == 0) {
+         return cmd_status(dev, argc - 2, argv + 2);
+    }
+
 
     fprintf(stderr, "Unknown subcommand: %s\n", cmd);
     usage(stderr);

@@ -1,43 +1,37 @@
-# ===== lbrctl (user-space) =====
+# =========================
+# Unified Makefile
+# =========================
 
-# קבצי מקור לפי העץ בתמונה
-SRC := \
-  lbr_control.c \
-  lbr_info.c \
-  lbr_interface.c \
-  lbr_logger.c \
-  lbrctl_common.c \
-  main.c
-
-# כותרות (אם חלק לא קיימים אצלך – אפשר למחוק מהרשימה)
-HDR := \
-  lbr_API.h \
-  lbr_control.h \
-  lbr_info.h \
-  lbr_interface.h \
-  lbr_logger.h \
-  lbrctl_common.h
-
-BIN := lbrctl
-
-# דגלי קומפילציה
+# ---- user-space (lbrctl) ----
 CC       ?= gcc
 CFLAGS   ?= -std=c11 -O2 -g -Wall -Wextra -Wpedantic -fno-omit-frame-pointer
 CPPFLAGS ?= -D_GNU_SOURCE
 LDFLAGS  ?=
+BIN := lbrctl
 
-OBJ := $(SRC:.c=.o)
+USER_SRC := \
+  lbrctl_common.c \
+  lbrctl_config.c \
+  lbrctl_run.c \
+  main.c
 
-.PHONY: all clean run install deps
+USER_HDR := \
+  lbr_API.h \
+  lbrctl_common.h
 
-all: $(BIN)
+USER_OBJ := $(USER_SRC:.c=.o)
 
-$(BIN): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
+.PHONY: all user module clean run install deps
 
-# כלל כללי לקבצי ‎.o‎ – תלויות גם בכותרות
-%.o: %.c $(HDR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+all: user
+
+user: $(BIN)
+
+$(BIN): $(USER_OBJ)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $(USER_OBJ) $(LDFLAGS)
+
+%.o: %.c $(USER_HDR)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 run: $(BIN)
 	./$(BIN)
@@ -45,10 +39,22 @@ run: $(BIN)
 install: $(BIN)
 	install -Dm755 $(BIN) /usr/local/bin/$(BIN)
 
-clean:
-	rm -f $(OBJ) $(BIN)
-
-# התקנת תלותים בסביבת לייב אופציונלית
 deps:
 	sudo apt update
-	sudo apt install -y build-essential git
+	sudo apt install -y build-essential linux-headers-$(shell uname -r)
+
+clean:
+	rm -f $(USER_OBJ) $(BIN)
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean || true
+
+# ---- kernel module (lbr_driver.ko) ----
+# בונים עם Kbuild. ודא שהקבצים האלה הם קוד קרנל (לא כוללים stdio וכו').
+obj-m := lbr_driver.o
+lbr_driver-y := \
+  lbr_interface.o \
+  lbr_control.o \
+  lbr_info.o \
+  lbr_logger.o
+
+module:
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

@@ -1,14 +1,1 @@
-=== LBR Info from kernel ===
-Supported:   yes
-Max entries:    0
-Supported modes: 0x0
-Current mode:   0
 
-Enabling LBR...
-LBR enabled.
-
-Setting LBR mode to 2 (User Only)...
-Mode set to 2.
-
-Disabling LBR...
-LBR disabled.

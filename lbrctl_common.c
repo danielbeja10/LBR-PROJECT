@@ -29,6 +29,7 @@ void usage(FILE* f) {
 "                [filter1] [filter2] [filter3] [filter4] [filter5] [filter6] [filter7]\n"
 "\n"
 "  lbrctl run    [--dev PATH] -- <program> [args...]\n"
+"  lbrctl status [--dev PATH] [limits|ctl]\n"
 "\n"
 "Notes:\n"
 "  • depth N    -  change the LBR depth to N.\n"
@@ -40,6 +41,9 @@ void usage(FILE* f) {
 "Examples:\n"
 "  lbrctl config depth 16 usr callstack filter1 filter3 filter7\n"
 "  lbrctl run -- ./myprog arg1 arg2\n"
+"  lbrctl status\n"
+"  lbrctl status limits\n"
+"  lbrctl status ctl\n"
     );
 }
 

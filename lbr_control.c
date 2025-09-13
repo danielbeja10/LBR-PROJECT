@@ -130,6 +130,6 @@ int lbr_set_depth(u32 new_depth)
         return rc;
 
     wrmsrl(MSR_IA32_LBR_DEPTH, (u64)new_depth);
-    pr_info("lbr: SET_DEPTH to 0x%llx done\n",(unsigned long long)new_ctl);
+    pr_info("lbr: SET_DEPTH to 0x%x done\n",new_depth);
     return 0;
 }

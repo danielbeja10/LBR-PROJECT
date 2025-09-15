@@ -1,6 +1,3 @@
-#ifndef LBRCTL_COMMON_H
-#define LBRCTL_COMMON_H
-
 #include <stdio.h>
 #include <stdint.h>
 #include "lbr_API.h"
@@ -20,6 +17,5 @@ void  usage(FILE* f);
 /*
 * Json output of the branches.
 */
-void write_json(FILE* out, const struct lbr_entry* ents, unsigned n);
-
+void write_json(FILE* out, const struct lbr_entry_api* ents, unsigned n);
 

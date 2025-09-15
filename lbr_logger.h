@@ -18,4 +18,3 @@ void lbr_log_destroy(struct lbr_log *log);
 
 /* Read current LBR entries into 'log->entries' and set 'log->count' */
 int  lbr_log_capture(struct lbr_log *log);
-

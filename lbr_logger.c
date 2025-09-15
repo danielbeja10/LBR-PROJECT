@@ -19,7 +19,6 @@
 int lbr_log_init(struct lbr_log *log)
 {
      struct lbr_limits lim;
-    __u8 has = 0;
     int rc;
 
     if (!log)
@@ -35,7 +34,7 @@ int lbr_log_init(struct lbr_log *log)
       
 
     log->capacity = lim.max_depth; //the LBR can contain max depth number of branches.
-    pr_info("lbr: created array of %u lbr entries"\n, log->capacity);   
+    pr_info("lbr: created array of %u lbr entries\n", log->capacity);   
     log->count = 0; // how many branches we recorded.
     return 0;
 }
@@ -56,7 +55,6 @@ void lbr_log_destroy(struct lbr_log *log)
 int lbr_log_capture(struct lbr_log *log)
 {
     struct lbr_limits lim;
-    __u8 has = 0;
     int rc;
     u32 i, n;
 
@@ -82,4 +80,3 @@ int lbr_log_capture(struct lbr_log *log)
     log->count = n;
     return 0;
 }
-

@@ -31,14 +31,17 @@ The project contains both Linux Kernel Module and a user-space CLI to configure 
 7. when finish running, close the Kernel module: **sudo rmmod lbr_driver.ko**
 8. **make clean** to delete the compiled files.
 
-**side note:**
+##side note:
 the project contain simple program to test the LBR with, before building the project you can:
 1. **gcc -O0 -g -o my_program my_program.c**
 2.run the program. for example: **./my_program 8**
 3. the output should be:
-   when x > 10 output big
-   when 5 < x < 10  output medium
-   when  x < 5 output small   
+- when x > 10 output big
+- when 5 < x < 10  output medium
+- when  x < 5 output small   
 
 
+
+
+-----------------------------
 Inside the docs folder there is the document for the client and the project instructions.

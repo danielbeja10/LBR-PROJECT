@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>   // calloc, free
 #include <string.h>   // strcmp
@@ -8,6 +7,7 @@
 
 int cmd_config(const char* dev, int argc, char** argv);
 int cmd_run   (const char* dev, int argc, char** argv);
+int cmd_status(const char* dev, int argc, char** argv);
 
 
 int main(int argc, char** argv) {

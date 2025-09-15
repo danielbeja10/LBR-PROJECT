@@ -1,3 +1,6 @@
+#include <stdio.h>  // for printf
+#include <stdlib.h> // for atoi
+
 int main(int argc, char** argv) {
     int x = (argc > 1) ? atoi(argv[1]) : 0;
 

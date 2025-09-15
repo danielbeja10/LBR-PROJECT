@@ -33,7 +33,7 @@ The project contains both Linux Kernel Module and a user-space CLI to configure 
 
 **Simple Test with given program**
 the project contain simple program to test the LBR with, before building the project you can:
-1. **gcc -O0 -g -o my_program my_program.c**
+1. **gcc -O0 -g -o my_program testprog.c**
 2. run the program. for example: **./my_program 8**
 3. the output should be:
 - when x > 10 output big

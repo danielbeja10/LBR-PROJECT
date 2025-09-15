@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -46,18 +47,6 @@ void usage(FILE* f) {
     );
 }
 
-/* build FILTER[0..6] field from a 7-bit mask */
-__u64 build_filter_bits(unsigned mask7) {
-    __u64 f = 0;
-    if (mask7 & (1u << 0)) f |= LBR_CTL_FILTER0;
-    if (mask7 & (1u << 1)) f |= LBR_CTL_FILTER1;
-    if (mask7 & (1u << 2)) f |= LBR_CTL_FILTER2;
-    if (mask7 & (1u << 3)) f |= LBR_CTL_FILTER3;
-    if (mask7 & (1u << 4)) f |= LBR_CTL_FILTER4;
-    if (mask7 & (1u << 5)) f |= LBR_CTL_FILTER5;
-    if (mask7 & (1u << 6)) f |= LBR_CTL_FILTER6;
-    return f;
-}
 
 /* print JSON */
 void write_json(FILE* out, const struct lbr_entry_api* ents, unsigned n) {

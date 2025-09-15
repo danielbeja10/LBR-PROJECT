@@ -20,12 +20,6 @@ void  usage(FILE* f);
 /*
 * Json output of the branches.
 */
-void  write_json(FILE* out, const struct lbr_entry* ents, unsigned n);
+void write_json(FILE* out, const struct lbr_entry* ents, unsigned n);
 
 
-/*
-* Create a 7 filter bits according to what the user chose.
-*/
-__u64 build_filter_bits(unsigned mask7);
-
-#endif /* LBRCTL_COMMON_H */

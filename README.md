@@ -23,7 +23,7 @@ The project contains both Linux Kernel Module and a user-space CLI to configure 
 > **Note:** All those command should have: **taskset -c 0** , before them because we want to use only 1 core of the CPU.
 
 1. **make** (you can also make the moudle and the user in a different command: **make moudle**, **make user**).
-2. sudo insmod l**br_driver.ko** -  in order to activate the module.
+2. **sudo insmod lbr_driver.ko** -  in order to activate the module.
 3. if needed - check kernel logs: **dmesg | tail -n 20**
 4. configure the LBR for example: **sudo ./lbrctl config depth 8 usr ker.**
 5. check the status: **sudo ./lbrctl status**

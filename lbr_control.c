@@ -6,6 +6,7 @@
 #include <asm/processor.h>
 #include "lbr_API.h"
 #include "lbr_info.h"
+#include "lbr_control.h"
 
 #define MSR_IA32_LBR_CTL    0x14CEull
 #define MSR_IA32_LBR_DEPTH  0x14CFull

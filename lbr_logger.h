@@ -5,7 +5,7 @@
 
 /* In-memory buffer to hold a snapshot of LBR entries */
 struct lbr_log {
-    struct lbr_entry *entries; /* allocated array */
+    struct lbr_entry_api *entries; /* allocated array */
     u32 capacity;              /*  array size (in entries) max depth */
     u32 count;                 /* how many entries captured last time */
 };

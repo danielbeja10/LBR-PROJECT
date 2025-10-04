@@ -56,7 +56,7 @@ int lbr_enable(void)
     __u8 has = 0;
     u64 ctl;
     int cpu = get_cpu();
-    put_cpu();
+   
 
     pr_info("lbr: ENABLE requested by pid=%d (comm=%s) on cpu=%d\n",
             current->pid, current->comm, cpu);
@@ -68,6 +68,7 @@ int lbr_enable(void)
     rdmsrl(MSR_IA32_LBR_CTL, ctl);
     ctl |= LBR_CTL_ENABLE;
     wrmsrl(MSR_IA32_LBR_CTL, ctl); // return the same LBR CTL just with enable bit[0] as 1.
+    put_cpu();
     pr_info("lbr: ENABLE done\n");
     return 0;
 }
@@ -79,8 +80,7 @@ int lbr_disable(void)
     __u8 has = 0;
     u64 ctl;
     int cpu = get_cpu();
-    put_cpu();
-
+   
     pr_info("lbr: DISABLE requested by pid=%d (comm=%s) on cpu=%d\n",
             current->pid, current->comm, cpu);
 
@@ -91,6 +91,9 @@ int lbr_disable(void)
     rdmsrl(MSR_IA32_LBR_CTL, ctl); 
     ctl &= ~LBR_CTL_ENABLE;
     wrmsrl(MSR_IA32_LBR_CTL, ctl); // return the same LBR CTL just with enable bit[0] as 0.
+
+    put_cpu();
+
     pr_info("lbr: DISABLE done\n");
     return 0;
 }

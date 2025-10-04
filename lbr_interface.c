@@ -10,7 +10,7 @@
 #include "lbr_control.h" /* lbr_enable, lbr_disable, lbr_set_ctl, lbr_set_depth */
 
 
-static void lbr_dump_basic_kernel(const struct lbr_basic_report *rep, u64 ctl_raw)
+static void lbr_basic_kernel(const struct lbr_basic_report *rep, u64 ctl_raw)
 {
 
     pr_info("lbr: GET_BASIC: has_lbr=%u\n", rep->has_lbr);
@@ -61,7 +61,7 @@ static long lbr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if (rc != 0)
             return rc;
         ctl_raw = rep.lbr_config.lbr_ctl;
-        lbr_dump_basic_kernel(&rep, ctl_raw);
+        lbr_basic_kernel(&rep, ctl_raw);
         if (copy_to_user((void __user *)arg, &rep, sizeof(rep)))
             return -EFAULT;
 

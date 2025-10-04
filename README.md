@@ -36,9 +36,9 @@ the project contain simple program to test the LBR with, before building the pro
 1. **gcc -O0 -g -o my_program testprog.c**
 2. run the program. for example: **./my_program 8**
 3. the output should be:
-- when x > 10 output big
-- when 5 < x < 10  output medium
-- when  x < 5 output small   
+- when x > 10 output big.
+- when 5 < x < 10  output medium.
+- when  x < 5 output small.
 
 
 

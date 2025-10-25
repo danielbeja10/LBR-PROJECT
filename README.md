@@ -1,4 +1,4 @@
-# TPIL - LBR PROJECT
+# LBR PROJECT
 
 The project contains both Linux Kernel Module and a user-space CLI to configure and run the LBR of the CPU on a certain program.
 
